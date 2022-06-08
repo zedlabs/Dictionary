@@ -37,7 +37,7 @@ fun WordDetailsPage(
     LaunchedEffect(true) {
         val wordGroup = groupNumber?.toIntOrNull()?.plus(1) ?: 0
         val word = WordData.indexGroupMap[wordGroup]?.get(itemPosition?.toInt() ?: 0)
-        wordDetailsViewModel.getDefinition(word ?: return@LaunchedEffect)
+        wordDetailsViewModel.getWordDetails(word ?: return@LaunchedEffect)
     }
     when (definition.value) {
         is Resource.Error -> {
@@ -49,6 +49,7 @@ fun WordDetailsPage(
         }
         is Resource.Success -> {
             WordDetails(definition.value.data)
+            wordDetailsViewModel.insertWord(definition.value.data ?: return)
         }
         is Resource.Uninitialised -> {
             //nothing here
@@ -57,16 +58,16 @@ fun WordDetailsPage(
 }
 
 @Composable
-fun WordDetails(data: List<DefinitionResponseItem>?) {
+fun WordDetails(currentWord: DefinitionResponseItem?) {
     //show error view ideally
-    data ?: return
+    currentWord ?: return
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .verticalScroll(scrollState)
             .fillMaxSize()
     ) {
-        data.forEach { currentWord ->
+
             Column {
                 Text(
                     text = buildAnnotatedString {
@@ -102,7 +103,6 @@ fun WordDetails(data: List<DefinitionResponseItem>?) {
                     Divider()
                 }
             }
-        }
     }
 }
 

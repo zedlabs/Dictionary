@@ -1,10 +1,15 @@
 package gre.prep.grevocabwords
 
+import android.content.Context
+import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import gre.prep.grevocabwords.Constants.base_url
+import gre.prep.grevocabwords.db.AppDatabase
+import gre.prep.grevocabwords.db.WordDao
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -16,7 +21,22 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun providesOkHttpClient() : OkHttpClient{
+    fun provideRoomDb(@ApplicationContext ctx: Context): AppDatabase {
+        return Room.databaseBuilder(
+            ctx,
+            AppDatabase::class.java, "database-name"
+        ).fallbackToDestructiveMigration().build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideWordDao(appDatabase: AppDatabase): WordDao {
+        return appDatabase.wordDao()
+    }
+
+    @Provides
+    @Singleton
+    fun providesOkHttpClient(): OkHttpClient {
         return OkHttpClient
             .Builder()
             .build()
